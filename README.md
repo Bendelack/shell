@@ -13,10 +13,12 @@
 ## Chamadas de Sistema
 > Chamadas de sistema são funções que o Sistema Operacional disponibiliza para acessar os recursos que o mesmo gerencia. Para facilitar o uso dessas funções são desenvolvidos programas de sistemas, que permitem ao usuário realizar tarefas administrativas através da execução de programas, ao invés de fazer ele mesmo um programa.
 > ### Chamadas de Sistema Utilizadas
-> - **getenv()**
-> - **setenv()**
-> - **fork()**
-> - **execve()**
+> - **getenv()**: Pega o valor de uma variável de ambiente;
+> - **setenv()**: Altera o valor de uma variável de ambiente. Se não existir, adiciona uma nova;
+> - **chdir(*dir*)**: Muda o diretório de trabalho para `dir`;
+> - **getcwd()**: Pega o diretório atual de trabalho;
+> - **fork()**: Cria um processo filho;
+> - **execve()**: Executa um programa.
 ## Comandos Internos
 > São comandos codificados internamente na shell, sem a necessidade de verificar programas externos para execução
 > ### São exemplos de comandos internos:
@@ -32,3 +34,5 @@
 > - **rm** -> Remove arquivos. Localizado em `/bin/rm`;
 > - **mv** -> Muda de lugar/nome um arquivo. Pode mudar um conjunto de arquivos, se o destino for um diretório Localizado em `/bin/mv`;
 > - **cat** -> Mostra no terminal o conteúdo de um arquivo. Considera arquivos em modo texto, mostrando cada byte como um valor ASCCII. Localizado em `/bin/cat`.
+## Referências
+> - [Linux man page online](https://man7.org/linux/man-pages/)
