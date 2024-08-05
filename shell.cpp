@@ -12,8 +12,10 @@ void process_command(std::string command) {
     // comandos internos...
     // fecha a shell se o comando for 'exit'
     if ( command == "exit" ) exit(0); // exit
-    else if ( command == "pwd" ){ // mostra o diretório atual
-	    std::cout << std::getenv("PWD") << std::endl; // pega o diretório atual da variável de ambiente PWD usando a chamada de sistema getenv()
+    else if ( command == "pwd" ){ // pwd
+	    char cdir[1024]; // buffer para receber o diretório atual
+	    getcwd(cdir, 1024); // usando chamada de sistema getcwd para pegar o diretório atual de trabalho
+	    std::cout << cdir << std::endl; // mostra o diretório atual
 	    return; // retorna 'nada' e segue a execução normal da shell
     }
     // dividindo o comando para pegar possíveis argumentos
@@ -43,12 +45,14 @@ void process_command(std::string command) {
             changeToDir = getenv("OLDPWD"); // mudar para o diretório que estava antes
         else // se não for nenhuma das anteriores
             changeToDir = arguments[1].c_str(); // pega o valor passado como argumento
-        if(chdir(changeToDir) == -1){ // muda o diretório
+        if(chdir(changeToDir) == -1){ // muda o diretório (retorna 0 mudou com sucesso, caso contrário retorna -1)
             perror("error to change directory"); // se houver falhas, mostra a mensagem
         } else {
-            setenv("OLDPWD", getenv("PWD"), 1); // caminho antigo recebe o caminho atual. 
-            setenv("PWD", changeToDir, 1); // caminho atual recebe o novo diretório
-            std::cout << "change to dir: " << changeToDir << std::endl; // mostra para qual diretório mudou
+            setenv("OLDPWD", getenv("PWD"), 1); // caminho antigo recebe o caminho atual.
+	    char cdir[1024]; // para receber o diretório atual
+	    getcwd(cdir, 1024); // pega o diretório atual usando a chamada de sistema getcwd.
+            setenv("PWD", cdir, 1); // caminho atual recebe o novo diretório
+            std::cout << "change to dir: " << cdir << std::endl; // mostra para qual diretório mudou
         }
         return; // retorna 'nada' e segue o fluxo normal de execução da shell
     } else if (arguments[0] == "history"){// history
@@ -65,13 +69,17 @@ void process_command(std::string command) {
             history.clear(); // limpa o histórico
         else { // se não for nenhuma das anteriores espera-se que seja 'history offset', sendo offset um valor inteiro correspondente ao indice de um comando do histórico
             offset = std::stoi(arguments[1]); // converter o segundo argumento para inteiro
+            if( offset < 0 || offset >  9 || offset > (static_cast<int>(history.size())-1) ) {// se o número for inválido
+                std::cout << "invalid offset." << std::endl; // mensagem de erro
+                return; // retorna 'nada' e segue a execução normal da shell
+            }
             process_command(history[(history.size())-offset-2]); // precessa o comando chamando própria função novamente
         }
         return; // retorna 'nada' e segue o fluxo normal de execução da shell
     }
     //comandos externos
     // vetor para armezenar os diretórios externos para buscar arquivos executáveis
-    std::string argsPath[32];
+    std::string argsPath[128];
     int y = 0; // armazena a quantidade de diretórios disponíveis
 
     std::string envPATH = std::getenv("PATH"); // ler a variável de ambiente PATH usando a chamada de sistema PATH
@@ -92,11 +100,11 @@ void process_command(std::string command) {
     bool finded = false; // armazenará 'true' caso o comando seja encontrado na lista de diretórios
     bool executed = false; // armazenará 'true' caso o comando seja executado
     for (int i = 0; i < y; i++){ // para cada diretório na lista de diretórios de PATH
-	    std::string absolute_path = argsPath[i] + "/" + arguments[0]; // criando caminho absoluto para o comando
+        std::string absolute_path = argsPath[i] + "/" + arguments[0]; // criando caminho absoluto para o comando
         if (access(absolute_path.c_str(), F_OK) == 0) { // Arquivo existe no diretório
-	        finded = true; // arquivo encontrado
+            finded = true; // arquivo encontrado
             if (access(absolute_path.c_str(), X_OK) == 0) { // Arquivo é executável
-		        executed = true; // arquivo executável
+                executed = true; // arquivo executável
                 pid_t pid = fork(); // cria um processo filho para executar o programa
                 if (pid < 0){ // Erro
                     std::cout << "Erro de execução!" << std::endl; // mostra mensagem de erro
