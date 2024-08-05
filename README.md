@@ -35,4 +35,4 @@
 > - **mv** -> Muda de lugar/nome um arquivo. Pode mudar um conjunto de arquivos, se o destino for um diretório Localizado em `/bin/mv`;
 > - **cat** -> Mostra no terminal o conteúdo de um arquivo. Considera arquivos em modo texto, mostrando cada byte como um valor ASCCII. Localizado em `/bin/cat`.
 ## Referências
-> - [Linux man page online](https://man7.org/linux/man-pages/)
+> - <a href="https://man7.org/linux/man-pages/" target="_blank">Linux man page online</a>
